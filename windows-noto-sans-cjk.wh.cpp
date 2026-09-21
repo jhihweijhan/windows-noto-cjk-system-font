@@ -47,6 +47,9 @@ Comprehensive in-memory system font replacement for Windows 10/11.
 #include <vector>
 
 #include <windhawk_api.h>
+#ifndef WH_MOD_ID
+#define WH_MOD_ID L"windows-noto-sans-cjk"
+#endif
 #include <windhawk_utils.h>
 
 using namespace winrt;
@@ -461,7 +464,7 @@ void LoadSettings() {
            g_settings.enforceBold ? 1 : 0);
 }
 
-constexpr void* get_item_in_vtable(IUnknown* vtable, uint32_t idx) {
+inline void* get_item_in_vtable(IUnknown* vtable, uint32_t idx) {
     return (*reinterpret_cast<void***>(vtable))[idx];
 }
 

@@ -6,3 +6,4 @@ Thumbs.db
 Desktop.ini
 *.log
 *.tmp
+__pycache__/
