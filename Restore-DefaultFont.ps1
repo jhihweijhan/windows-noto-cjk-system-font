@@ -48,7 +48,7 @@ if (Test-Path "$latestBackupDir\Fonts.reg") {
 
     # 清除 FontSubstitutes 替換
     $subKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\FontSubstitutes'
-    @('Segoe UI', 'Segoe UI Variable', 'Microsoft JhengHei', 'Microsoft JhengHei UI', 'MS Shell Dlg', 'MS Shell Dlg 2') | ForEach-Object {
+    @('Segoe UI', 'Segoe UI Variable', 'Microsoft JhengHei', 'Microsoft JhengHei UI', 'MS Shell Dlg', 'MS Shell Dlg 2', 'SimSun', 'NSimSun', 'PMingLiU', 'MingLiU', 'Noto Sans TC') | ForEach-Object {
         Remove-ItemProperty -Path $subKey -Name $_ -ErrorAction SilentlyContinue
     }
 
