@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     將 Windows 系統字型、視窗 UI、圖示、選單還原為預設字型 (微軟正黑體 / Segoe UI)。
 .DESCRIPTION

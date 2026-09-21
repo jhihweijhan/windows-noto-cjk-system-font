@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     將 Windows 系統字型、視窗 UI、圖示、瀏覽器設定為 Google Fonts 思源黑體 (Noto Sans TC)，並完整支援簡體中文。
 .DESCRIPTION
