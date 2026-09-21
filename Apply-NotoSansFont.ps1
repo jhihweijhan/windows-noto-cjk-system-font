@@ -65,6 +65,12 @@ Write-Host "[2/7] 檢查並安裝 Google Fonts 思源黑體 (TC 繁中 / SC 簡�
 $winFontsDir = "C:\Windows\Fonts"
 $fontsToEnsure = @(
     @{
+        Name = "Noto Sans CJK TC"
+        RegKey = "Noto Sans CJK TC (TrueType)"
+        File = "NotoSansCJKtc-VF.ttf"
+        Url = "https://raw.githubusercontent.com/notofonts/noto-cjk/main/Sans/Variable/TTF/NotoSansCJKtc-VF.ttf"
+    },
+    @{
         Name = "Noto Sans TC"
         RegKey = "Noto Sans TC (TrueType)"
         File = "NotoSansTC-VF.ttf"
@@ -174,12 +180,13 @@ Write-Host "  -> FontLink 簡繁雙向回退與表情符號連結完成！" -For
 Write-Host "[4/7] 設定系統全域字型替換 (FontSubstitutes)..." -ForegroundColor Yellow
 
 $subKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\FontSubstitutes'
-Set-ItemProperty -Path $subKey -Name 'Segoe UI' -Value 'Noto Sans TC'
-Set-ItemProperty -Path $subKey -Name 'Segoe UI Variable' -Value 'Noto Sans TC'
-Set-ItemProperty -Path $subKey -Name 'Microsoft JhengHei' -Value 'Noto Sans TC'
-Set-ItemProperty -Path $subKey -Name 'Microsoft JhengHei UI' -Value 'Noto Sans TC'
-Set-ItemProperty -Path $subKey -Name 'MS Shell Dlg' -Value 'Noto Sans TC'
-Set-ItemProperty -Path $subKey -Name 'MS Shell Dlg 2' -Value 'Noto Sans TC'
+Set-ItemProperty -Path $subKey -Name 'Segoe UI' -Value 'Noto Sans CJK TC'
+Set-ItemProperty -Path $subKey -Name 'Segoe UI Variable' -Value 'Noto Sans CJK TC'
+Set-ItemProperty -Path $subKey -Name 'Microsoft JhengHei' -Value 'Noto Sans CJK TC'
+Set-ItemProperty -Path $subKey -Name 'Microsoft JhengHei UI' -Value 'Noto Sans CJK TC'
+Set-ItemProperty -Path $subKey -Name 'Noto Sans TC' -Value 'Noto Sans CJK TC'
+Set-ItemProperty -Path $subKey -Name 'MS Shell Dlg' -Value 'Noto Sans CJK TC'
+Set-ItemProperty -Path $subKey -Name 'MS Shell Dlg 2' -Value 'Noto Sans CJK TC'
 
 # 5. 導向 HKLM Fonts (讓 Windows 優先使用 FontSubstitutes)
 $fontsKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
@@ -299,8 +306,8 @@ public class SystemMetricsApplier {
 }
 '@
 Add-Type -TypeDefinition $csMetrics -ErrorAction SilentlyContinue
-[SystemMetricsApplier]::Apply("Noto Sans TC", $targetWeight)
-Write-Host "  -> 視窗 UI、選單與桌面圖示文字已設定為 Noto Sans TC ($Weight)！" -ForegroundColor Green
+[SystemMetricsApplier]::Apply("Noto Sans CJK TC", $targetWeight)
+Write-Host "  -> 視窗 UI、選單與桌面圖示文字已設定為 Noto Sans CJK TC ($Weight)！" -ForegroundColor Green
 
 # -------------------------------------------------------------
 # 6. 設定 Chrome 與 Edge 瀏覽器字型偏好
@@ -319,9 +326,9 @@ function Set-BrowserFontConfig($prefPath) {
         }
         $fonts = [PSCustomObject]@{
             fixed = [PSCustomObject]@{ Zhtw = "Consolas"; und = "Consolas" }
-            sansserif = [PSCustomObject]@{ Zhtw = "Noto Sans TC"; Zhs = "Noto Sans SC"; und = "Noto Sans TC" }
+            sansserif = [PSCustomObject]@{ Zhtw = "Noto Sans CJK TC"; Zhs = "Noto Sans SC"; und = "Noto Sans CJK TC" }
             serif = [PSCustomObject]@{ Zhtw = "Noto Serif TC"; Zhs = "Noto Serif SC"; und = "Noto Serif TC" }
-            standard = [PSCustomObject]@{ Zhtw = "Noto Sans TC"; Zhs = "Noto Sans SC"; und = "Noto Sans TC" }
+            standard = [PSCustomObject]@{ Zhtw = "Noto Sans CJK TC"; Zhs = "Noto Sans SC"; und = "Noto Sans CJK TC" }
         }
         if (-not $content.webkit.webprefs.fonts) {
             $content.webkit.webprefs | Add-Member -MemberType NoteProperty -Name "fonts" -Value $fonts

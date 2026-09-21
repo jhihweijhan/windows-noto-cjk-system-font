@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0d1117;
+    color: #e6edf3;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    padding: 30px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+  .header {
+    border-bottom: 1px solid #30363d;
+    padding-bottom: 15px;
+  }
+  .header h1 {
+    font-size: 26px;
+    color: #58a6ff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .header p {
+    color: #8b949e;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  .card.success { border-color: #238636; }
+  .card.danger { border-color: #da3633; }
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    width: fit-content;
+  }
+  .badge.danger { background: rgba(218, 54, 51, 0.2); color: #f85149; }
+  .badge.success { background: rgba(35, 134, 54, 0.2); color: #3fb950; }
+  .text-sample {
+    font-size: 24px;
+    padding: 15px;
+    background: #0d1117;
+    border-radius: 6px;
+    border: 1px solid #21262d;
+    line-height: 1.6;
+  }
+  .old-font {
+    font-family: "Noto Sans TC", sans-serif;
+    font-weight: bold;
+  }
+  .new-font {
+    font-family: "Noto Sans CJK TC", "Noto Sans SC", sans-serif;
+    font-weight: bold;
+  }
+  .highlight-bad {
+    color: #f85149;
+    background: rgba(218, 54, 51, 0.15);
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: "SimSun", serif !important;
+    font-weight: normal;
+  }
+  .highlight-good {
+    color: #3fb950;
+    background: rgba(46, 160, 67, 0.15);
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+  .desc {
+    font-size: 13px;
+    color: #8b949e;
+    line-height: 1.5;
+  }
+  .footer-banner {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .tags {
+    display: flex;
+    gap: 10px;
+  }
+  .tag {
+    background: #21262d;
+    border: 1px solid #30363d;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #c9d1d9;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <h1>Windows Noto Sans CJK System Font (Bold 700)</h1>
+    <p>繁簡混排字元渲染修復與系統字型效果實測對比 (Chrome & System UI)</p>
+  </div>
+
+  <div class="grid">
+    <!-- BEFORE CARD -->
+    <div class="card danger">
+      <span class="badge danger">❌ 修復前：網頁輕量精簡版 (缺少簡中字元)</span>
+      <div class="text-sample old-font">
+        本周大火模型 jev，一期视<span class="highlight-bad">频带</span>你搞懂
+      </div>
+      <div class="desc">
+        ⚠️ <strong>問題現象：</strong><br>
+        傳統精簡版字型未收錄「频 (U+9891)」、「带 (U+5E26)」等簡中獨有字，DirectWrite 引擎自動回退至微軟細宋體 (SimSun)，產生風格突兀的字重掉字。
+      </div>
+    </div>
+
+    <!-- AFTER CARD -->
+    <div class="card success">
+      <span class="badge success">✔ 修復後：完整全字庫 36MB (65,535 字完整覆蓋)</span>
+      <div class="text-sample new-font">
+        本周大火模型 jev，一期视<span class="highlight-good">频带</span>你搞懂
+      </div>
+      <div class="desc">
+        🎉 <strong>修復效果：</strong><br>
+        採用完整 Pan-CJK 思源黑體全字庫，「频带」完美以同款粗體 (Bold 700) 思源黑體呈現，繁簡混合長文排版 100% 筆畫協調一致。
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top: 5px;">
+    <div class="badge success" style="margin-bottom: 10px;">系統多語系全文字測試 (Noto Sans CJK TC Bold)</div>
+    <div class="text-sample new-font" style="font-size: 18px; line-height: 1.8;">
+      繁體中文：桌面圖示、視窗標題列、右鍵快顯選單、瀏覽器介面全面粗體。<br>
+      簡體中文：包含「简体中文、视频带你搞懂、人工智能模型部署、门窗发广」完全無缺字。<br>
+      英數符號：Google Fonts Noto Sans Typography 0123456789 & ABCDEF
+    </div>
+  </div>
+
+  <div class="footer-banner">
+    <div style="font-size: 13px; color: #8b949e;">Windows 10 / 11 System Font Switcher · Open Source Tool</div>
+    <div class="tags">
+      <span class="tag">Noto Sans CJK TC</span>
+      <span class="tag">Noto Sans SC</span>
+      <span class="tag">FontLink Fallback</span>
+      <span class="tag">Bold 700</span>
+    </div>
+  </div>
+</body>
+</html>

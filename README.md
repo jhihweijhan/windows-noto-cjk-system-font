@@ -2,6 +2,8 @@
 
 一鍵將 Windows 10 / 11 的系統字型、視窗 UI、桌面與檔案總管圖示文字、瀏覽器介面更換為 Google Fonts 思源黑體（**Noto Sans TC 粗體 Bold**），並完整支援簡體中文無縫回退與一鍵還原。
 
+![Windows Noto Sans CJK System Font Preview](docs/preview.png)
+
 [English Description Below](#english)
 
 ---
