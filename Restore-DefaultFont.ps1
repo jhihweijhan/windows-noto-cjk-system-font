@@ -40,6 +40,8 @@ if (Test-Path "$latestBackupDir\Fonts.reg") {
     Set-ItemProperty -Path $fontsKey -Name 'Segoe UI Bold (TrueType)' -Value 'segoeuib.ttf' -ErrorAction SilentlyContinue
     Set-ItemProperty -Path $fontsKey -Name 'Segoe UI Semibold (TrueType)' -Value 'seguisb.ttf' -ErrorAction SilentlyContinue
     Set-ItemProperty -Path $fontsKey -Name 'Segoe UI Light (TrueType)' -Value 'segoeuil.ttf' -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path $fontsKey -Name 'Segoe UI Semilight (TrueType)' -Value 'segoeuisl.ttf' -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path $fontsKey -Name 'Segoe UI Variable (TrueType)' -Value 'SegUIVar.ttf' -ErrorAction SilentlyContinue
     Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei & Microsoft JhengHei UI (TrueType)' -Value 'msjh.ttc' -ErrorAction SilentlyContinue
     Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei Bold & Microsoft JhengHei UI Bold (TrueType)' -Value 'msjhbd.ttc' -ErrorAction SilentlyContinue
     Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei Light & Microsoft JhengHei UI Light (TrueType)' -Value 'msjhl.ttc' -ErrorAction SilentlyContinue
@@ -49,6 +51,9 @@ if (Test-Path "$latestBackupDir\Fonts.reg") {
     @('Segoe UI', 'Segoe UI Variable', 'Microsoft JhengHei', 'Microsoft JhengHei UI', 'MS Shell Dlg', 'MS Shell Dlg 2') | ForEach-Object {
         Remove-ItemProperty -Path $subKey -Name $_ -ErrorAction SilentlyContinue
     }
+
+    # 還原 Windows 預設快顯選單
+    Remove-Item -Path 'HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}' -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 # 還原 WindowMetrics 為微軟正黑體 Regular (400)

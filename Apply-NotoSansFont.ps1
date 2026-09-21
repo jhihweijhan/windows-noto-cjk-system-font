@@ -187,10 +187,20 @@ Set-ItemProperty -Path $fontsKey -Name 'Segoe UI (TrueType)' -Value ''
 Set-ItemProperty -Path $fontsKey -Name 'Segoe UI Bold (TrueType)' -Value ''
 Set-ItemProperty -Path $fontsKey -Name 'Segoe UI Semibold (TrueType)' -Value ''
 Set-ItemProperty -Path $fontsKey -Name 'Segoe UI Light (TrueType)' -Value ''
+Set-ItemProperty -Path $fontsKey -Name 'Segoe UI Semilight (TrueType)' -Value ''
+Set-ItemProperty -Path $fontsKey -Name 'Segoe UI Variable (TrueType)' -Value ''
 Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei & Microsoft JhengHei UI (TrueType)' -Value ''
 Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei Bold & Microsoft JhengHei UI Bold (TrueType)' -Value ''
 Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei Light & Microsoft JhengHei UI Light (TrueType)' -Value ''
-Write-Host "  -> 系統全域字型替換已生效！" -ForegroundColor Green
+
+# 啟用 Windows 完整快顯選單 (確保右鍵選單直接套用 Noto Sans TC 粗體)
+$clsidPath = "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
+if (-not (Test-Path $clsidPath)) {
+    New-Item -Path $clsidPath -Force | Out-Null
+}
+Set-ItemProperty -Path $clsidPath -Name "(Default)" -Value ""
+
+Write-Host "  -> 系統全域字型替換與快顯選單已生效！" -ForegroundColor Green
 
 # -------------------------------------------------------------
 # 5. 套用 WindowMetrics (圖示、標題列、選單、對話框、狀態列)
