@@ -9,6 +9,7 @@
 ## 🌟 特色亮點
 
 - **全系統 UI 粗體呈現**：全面修改 Windows `WindowMetrics`，將桌面圖示、檔案總管檔案清單、視窗標題列、右鍵快顯選單、對話框與狀態列全部統一為 `Noto Sans TC Bold`（粗細度 700）。
+- **Windows 11 右鍵快顯選單完美適配**：包含清空 `Segoe UI Variable` 註冊表對應，並啟用 Windows 完整快顯選單，讓桌面與檔案右鍵選單 100% 呈現粗體思源黑體。
 - **簡繁中文無縫雙向支援**：自動安裝 Google Fonts 官方完整版 `Noto Sans SC`（簡體中文），並透過 Windows 底層 `FontLink` 進行字元關聯回退。遇到簡體字（如「简、体、国、发、爱、门」等）時直接套用同款筆畫風格的思源黑體，絕無「缺字、方塊（豆腐塊 □）或風格突兀」。
 - **全域系統對應 (FontSubstitutes)**：底層將 `Segoe UI`、`Segoe UI Variable`、`Microsoft JhengHei UI`（微軟正黑體）強制導向至思源黑體。
 - **瀏覽器介面 (Browser UI) 同步**：Chrome、Edge 的外框（分頁標籤、網址列、書籤列、右鍵選單）跟隨系統 UI 字型，並自動設定預設網頁字型為思源黑體。
@@ -77,6 +78,7 @@ A clean, automated PowerShell tool to replace Windows 10/11 default system UI fo
 
 ### Features
 - **Bold System UI (Weight 700)**: Automatically configures `WindowMetrics` for desktop icons, explorer folders, window titles, popup menus, dialogs, and status bars.
+- **Windows 11 Context Menu Support**: Redirects `Segoe UI Variable` and activates the full context menu, guaranteeing 100% bold Noto Sans TC display on right-click.
 - **Full Simplified Chinese Support**: Automatically links `Noto Sans SC` via Windows `FontLink/SystemLink`. No missing characters or tofu squares (□) when encountering Simplified Chinese text.
 - **System-wide FontSubstitutes**: Maps `Segoe UI`, `Segoe UI Variable`, and `Microsoft JhengHei UI` to `Noto Sans TC`.
 - **Browser UI Support**: Google Chrome and Microsoft Edge tab bar, URL bar, and menus inherit the clean bold font.
