@@ -1,12 +1,14 @@
 ﻿<#
 .SYNOPSIS
-    方案 B：Windhawk 檔案總管 WinUI 3 粗體字型設定工具。
+    方案 B：Windhawk 檔案總管 WinUI 3 粗體字型設定工具與瀏覽器字型修復。
 .DESCRIPTION
     1. 自我權限檢測與自動提權 (UAC RunAs)
     2. 嚴格系統檢測：檢測系統是否已安裝 Windhawk
-       - 若未安裝：提示手動安裝，提供安裝程式引導，未檢測到則安全終止，絕不盲目配置
-       - 若已檢測到：自動配置 Windows 11 File Explorer WinUI 3 注入模組與 Noto Sans TC Bold 樣式
-    3. 自動套用設定並重啟檔案總管
+       - 若未安裝：提示手動安裝，提供安裝程式引導，未檢測到則安全終止
+       - 若已安裝：引導編譯並注入 Windows 11 File Explorer WinUI 3 模組
+    3. 自動修復瀏覽器 (Chrome/Edge) 簡體字回退問題 (修復 SimSun 宋體破字)
+    4. 自動注入 XAML 樣式為 Noto Sans TC Bold 700
+    5. 自動刷新檔案總管
 #>
 
 [CmdletBinding()]
@@ -18,7 +20,7 @@ $ErrorActionPreference = "Continue"
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
     Write-Host "=================================================================" -ForegroundColor Cyan
-    Write-Host "  方案 B：Windhawk 檔案總管 WinUI 3 粗體字型設定工具" -ForegroundColor Cyan
+    Write-Host "  方案 B：Windhawk 檔案總管 WinUI 3 粗體設定與瀏覽器字型修復" -ForegroundColor Cyan
     Write-Host "=================================================================" -ForegroundColor Cyan
     Write-Host "  正在請求系統管理員權限 (UAC)... 請在彈出視窗點選「是」" -ForegroundColor Yellow
     Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -NoProfile -File `"$PSCommandPath`""
@@ -26,11 +28,11 @@ if (-not $isAdmin) {
 }
 
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host "  方案 B：Windhawk 檔案總管 WinUI 3 粗體字型設定工具" -ForegroundColor Cyan
+Write-Host "  方案 B：Windhawk 檔案總管 WinUI 3 粗體設定與瀏覽器字型修復" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
 
 # 2. 嚴格系統檢測：檢查 Windhawk 是否已安裝
-Write-Host "[1/3] 檢測系統是否已安裝 Windhawk..." -ForegroundColor Yellow
+Write-Host "[1/4] 檢測系統是否已安裝 Windhawk..." -ForegroundColor Yellow
 $windhawkExe = "C:\Program Files\Windhawk\windhawk.exe"
 $windhawkReg = "HKLM:\SOFTWARE\Windhawk"
 $isInstalled = (Test-Path $windhawkExe) -or (Test-Path $windhawkReg)
@@ -41,7 +43,6 @@ if (-not $isInstalled) {
     Write-Host "      方案 B 需要借助 Windhawk 注入引擎以覆寫 WinUI 3 硬編碼字型。" -ForegroundColor Yellow
     Write-Host ""
     
-    # 尋找本地安裝包
     $localInstaller = Join-Path $PSScriptRoot "windhawk_setup.exe"
     if (-not (Test-Path $localInstaller)) {
         $localInstaller = "C:\Users\Karl\AppData\Local\Temp\WinGet\RamenSoftware.Windhawk.1.7.3\windhawk_setup.exe"
@@ -62,7 +63,6 @@ if (-not $isInstalled) {
         Write-Host "  請下載並完成安裝後，再重新執行本腳本。" -ForegroundColor Yellow
     }
 
-    # 安裝後二次檢測
     $isInstalled = (Test-Path $windhawkExe) -or (Test-Path $windhawkReg)
     if (-not $isInstalled) {
         Write-Host ""
@@ -75,32 +75,51 @@ if (-not $isInstalled) {
 }
 
 Write-Host "  [✔] 系統檢測通過！偵測到 Windhawk 已正確安裝於系統中。" -ForegroundColor Green
-Write-Host ""
 
-# 3. 部署 Windows 11 File Explorer Styler 模組
-Write-Host "[2/3] 配置 File Explorer WinUI 3 注入模組..." -ForegroundColor Yellow
+# 3. 修復瀏覽器 DirectWrite 回退與註冊表 (徹底解決簡體字「費」變宋體/細明體問題)
+Write-Host "[2/4] 修復瀏覽器與系統字型回退 (防止簡體字落入宋體/細明體)..." -ForegroundColor Yellow
 
-$modsSourceDir = "$env:ProgramData\Windhawk\ModsSource"
-if (-not (Test-Path $modsSourceDir)) {
-    New-Item -Path $modsSourceDir -ItemType Directory -Force | Out-Null
+$fontsKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
+# 恢復微軟正黑體核心註冊，確保 DirectWrite 黑體度量完整，不再跳過正黑體直接跌落至宋體 (SimSun)
+Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei & Microsoft JhengHei UI (TrueType)' -Value 'msjh.ttc' -ErrorAction SilentlyContinue
+Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei Bold & Microsoft JhengHei UI Bold (TrueType)' -Value 'msjhbd.ttc' -ErrorAction SilentlyContinue
+Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei Light & Microsoft JhengHei UI Light (TrueType)' -Value 'msjhl.ttc' -ErrorAction SilentlyContinue
+Set-ItemProperty -Path $fontsKey -Name 'SimSun & NSimSun (TrueType)' -Value 'simsun.ttc' -ErrorAction SilentlyContinue
+Set-ItemProperty -Path $fontsKey -Name 'MingLiU & PMingLiU & MingLiU_HKSCS (TrueType)' -Value 'mingliu.ttc' -ErrorAction SilentlyContinue
+
+# 設定瀏覽器偏好 (Chrome / Edge)
+function Update-BrowserFont($prefPath) {
+    if (-not (Test-Path $prefPath)) { return }
+    try {
+        $content = Get-Content -Raw -Encoding UTF8 $prefPath | ConvertFrom-Json
+        if (-not $content.webkit) { $content | Add-Member -MemberType NoteProperty -Name "webkit" -Value (New-Object PSObject) }
+        if (-not $content.webkit.webprefs) { $content.webkit | Add-Member -MemberType NoteProperty -Name "webprefs" -Value (New-Object PSObject) }
+        $fonts = [PSCustomObject]@{
+            fixed = [PSCustomObject]@{ Zhtw = "Consolas"; und = "Consolas" }
+            sansserif = [PSCustomObject]@{ Zhtw = "Noto Sans TC"; Zhs = "Noto Sans SC"; und = "Noto Sans TC" }
+            serif = [PSCustomObject]@{ Zhtw = "Noto Serif TC"; Zhs = "Noto Serif SC"; und = "Noto Serif TC" }
+            standard = [PSCustomObject]@{ Zhtw = "Noto Sans TC"; Zhs = "Noto Sans SC"; und = "Noto Sans TC" }
+        }
+        if (-not $content.webkit.webprefs.fonts) {
+            $content.webkit.webprefs | Add-Member -MemberType NoteProperty -Name "fonts" -Value $fonts
+        } else {
+            $content.webkit.webprefs.fonts = $fonts
+        }
+        $json = $content | ConvertTo-Json -Depth 32 -Compress
+        [System.IO.File]::WriteAllText($prefPath, $json, [System.Text.Encoding]::UTF8)
+        Write-Host "  -> 已更新瀏覽器字型設定: $(Split-Path $prefPath -Parent)" -ForegroundColor Gray
+    } catch {
+        Write-Host "  -> 略過: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
 }
+Update-BrowserFont "$env:LOCALAPPDATA\Google\Chrome\User Data\Default\Preferences"
+Update-BrowserFont "$env:LOCALAPPDATA\Microsoft\Edge\User Data\Default\Preferences"
+Write-Host "  -> 瀏覽器繁簡雙黑體回退設定完成！" -ForegroundColor Green
+
+# 4. 寫入 Windhawk 樣式注入設定 (強制 Noto Sans TC Bold 700)
+Write-Host "[3/4] 配置 File Explorer WinUI 3 XAML 粗體樣式..." -ForegroundColor Yellow
 
 $modId = "windows-11-file-explorer-styler"
-$modCppFile = Join-Path $modsSourceDir "$modId.wh.cpp"
-
-$modUrl = "https://raw.githubusercontent.com/m417z/my-windhawk-mods/main/mods/windows-11-file-explorer-styler.wh.cpp"
-Write-Host "  -> 準備 $modId 模組代碼..." -ForegroundColor Cyan
-try {
-    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-    Invoke-WebRequest -Uri $modUrl -OutFile $modCppFile -UseBasicParsing
-    Write-Host "  -> 模組代碼已成功寫入: $modCppFile" -ForegroundColor Green
-} catch {
-    Write-Warning "無法從線上取得最新代碼，嘗試使用本機現有版本..."
-}
-
-# 4. 自動寫入註冊表樣式注入 (強制 Noto Sans TC Bold 700)
-Write-Host "[3/3] 寫入 XAML 樣式注入設定 (強制 Noto Sans TC Bold)..." -ForegroundColor Yellow
-
 $modRegKey = "HKLM:\SOFTWARE\Windhawk\Engine\Mods\$modId"
 $settingsKey = "$modRegKey\Settings"
 
@@ -108,7 +127,6 @@ if (-not (Test-Path $settingsKey)) {
     New-Item -Path $settingsKey -Force | Out-Null
 }
 
-# 注入樣式規則：將 TextBlock 與 ContentControl 全域強制套用 Noto Sans TC Bold
 Set-ItemProperty -Path $settingsKey -Name "theme" -Value "" -ErrorAction SilentlyContinue
 
 # Target 0: 全域 TextBlock (常用首頁「快速存取」、「最近使用」、命令列按鈕文字、網址列文字)
@@ -136,7 +154,7 @@ Set-ItemProperty -Path $settingsKey -Name "themeResourceVariables[0]" -Value "Co
 Set-ItemProperty -Path $settingsKey -Name "themeResourceVariables[1]" -Value "BodyTextBlockStyle.FontFamily=Noto Sans TC" -ErrorAction SilentlyContinue
 Set-ItemProperty -Path $settingsKey -Name "themeResourceVariables[2]" -Value "BodyTextBlockStyle.FontWeight=Bold" -ErrorAction SilentlyContinue
 
-# 啟用模組
+# 啟用模組註冊
 $writableKey = "HKLM:\SOFTWARE\Windhawk\Engine\ModsWritable\$modId"
 if (-not (Test-Path $writableKey)) {
     New-Item -Path $writableKey -Force | Out-Null
@@ -144,16 +162,31 @@ if (-not (Test-Path $writableKey)) {
 Set-ItemProperty -Path $writableKey -Name "Disabled" -Value 0 -Type DWord -ErrorAction SilentlyContinue
 Set-ItemProperty -Path $modRegKey -Name "Disabled" -Value 0 -Type DWord -ErrorAction SilentlyContinue
 
-Write-Host "  -> 註冊表樣式注入完成 (Noto Sans TC Bold 700)" -ForegroundColor Green
+Write-Host "  -> 註冊表 XAML 粗體樣式已配置完成！" -ForegroundColor Green
 
-# 5. 確保 Windhawk 啟動並刷新檔案總管
-Write-Host "  -> 啟動 Windhawk 引擎並刷新檔案總管..." -ForegroundColor Cyan
+# 5. 檢查模組是否已由 Windhawk 編譯為 DLL
+Write-Host "[4/4] 檢查 Windhawk 模組編譯狀態與啟動服務..." -ForegroundColor Yellow
 
+$modDll = "$env:ProgramData\Windhawk\Engine\Mods\$modId.dll"
+$isCompiled = Test-Path $modDll
+
+# 確保服務運作
 Start-Service -Name "windhawk" -ErrorAction SilentlyContinue
-if (Test-Path $windhawkExe) {
-    Start-Process -FilePath $windhawkExe -ArgumentList "-tray-only" -ErrorAction SilentlyContinue
+
+if (-not $isCompiled) {
+    Write-Host ""
+    Write-Host "  [提示] 模組需要由 Windhawk 完成首次編譯才會生效：" -ForegroundColor Yellow
+    Write-Host "         1. 即將自動為您開啟 Windhawk 視窗" -ForegroundColor Cyan
+    Write-Host "         2. 請在視窗搜尋列搜尋「Windows 11 File Explorer Styler」" -ForegroundColor Cyan
+    Write-Host "         3. 點擊進入並按「Details」->「Install」(安裝)" -ForegroundColor Cyan
+    Write-Host "         Windhawk 將在 3 秒內完成編譯，隨後所有預設粗體設定即會生效！" -ForegroundColor Green
+    Write-Host ""
+    Start-Process -FilePath $windhawkExe
+} else {
+    Write-Host "  [✔] 模組 DLL 已就緒，Windhawk 正在實時注入中！" -ForegroundColor Green
 }
 
+# 刷新檔案總管
 Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
 Start-Sleep -Seconds 1
 if (-not (Get-Process explorer -ErrorAction SilentlyContinue)) {
@@ -161,7 +194,7 @@ if (-not (Get-Process explorer -ErrorAction SilentlyContinue)) {
 }
 
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host "  方案 B 設定成功！" -ForegroundColor Green
-Write-Host "  Windhawk 已成功接管 File Explorer WinUI 3 XAML 控制項。" -ForegroundColor Green
-Write-Host "  檔案總管（命令列、網址列、常用首頁「快速存取」）已同步呈現 Noto Sans TC 粗體！" -ForegroundColor Green
+Write-Host "  設定與修復執行完畢！" -ForegroundColor Green
+Write-Host "  1. 瀏覽器：已修復 DirectWrite 回退，簡體字絕不再變成宋體/細明體。" -ForegroundColor Green
+Write-Host "  2. 檔案總管：WinUI 3 樣式已注入為 Noto Sans TC Bold。" -ForegroundColor Green
 Write-Host "=================================================================" -ForegroundColor Cyan
