@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "思源黑體全網字型修正 (Noto Sans CJK Enforcer)",
+  "version": "1.0.0",
+  "description": "強制全域網頁優先採用思源黑體 (Noto Sans TC + SC)，徹底杜絕簡體字跌入宋體/細明體破字問題。",
+  "permissions": [],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "css": ["font_override.css"],
+      "run_at": "document_start"
+    }
+  ]
+}
