@@ -1,0 +1,8 @@
+# Backups directory created at runtime
+backups/
+
+# Windows temp & caches
+Thumbs.db
+Desktop.ini
+*.log
+*.tmp
