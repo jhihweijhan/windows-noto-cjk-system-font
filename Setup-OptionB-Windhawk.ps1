@@ -215,13 +215,22 @@ New-Item -Path $explorerSettings -Force | Out-Null
 
 Set-ItemProperty -Path $explorerSettings -Name "theme" -Value "" -ErrorAction SilentlyContinue
 
-# Target 0: 全域 TextBlock 僅注入 FontWeight=Bold，保留原生圖示字型 (Segoe Fluent Icons / SymbolThemeFontFamily)
-Set-ItemProperty -Path $explorerSettings -Name "controlStyles[0].target" -Value "TextBlock" -ErrorAction SilentlyContinue
-Set-ItemProperty -Path $explorerSettings -Name "controlStyles[0].styles[0]" -Value "FontWeight=Bold" -ErrorAction SilentlyContinue
+$fontFallback = "Noto Sans TC, Segoe Fluent Icons, Segoe MDL2 Assets"
 
-# Target 1: 全域 ContentControl 僅注入 FontWeight=Bold
+# Target 0: 全域 TextBlock (網址列麵包屑文字、一般文字) -> 注入 Noto Sans TC Bold 並附帶 Segoe Fluent Icons 回退以保護箭頭與圖示
+Set-ItemProperty -Path $explorerSettings -Name "controlStyles[0].target" -Value "TextBlock" -ErrorAction SilentlyContinue
+Set-ItemProperty -Path $explorerSettings -Name "controlStyles[0].styles[0]" -Value "FontFamily=$fontFallback" -ErrorAction SilentlyContinue
+Set-ItemProperty -Path $explorerSettings -Name "controlStyles[0].styles[1]" -Value "FontWeight=Bold" -ErrorAction SilentlyContinue
+
+# Target 1: 全域 ContentControl (按鈕、標籤)
 Set-ItemProperty -Path $explorerSettings -Name "controlStyles[1].target" -Value "ContentControl" -ErrorAction SilentlyContinue
-Set-ItemProperty -Path $explorerSettings -Name "controlStyles[1].styles[0]" -Value "FontWeight=Bold" -ErrorAction SilentlyContinue
+Set-ItemProperty -Path $explorerSettings -Name "controlStyles[1].styles[0]" -Value "FontFamily=$fontFallback" -ErrorAction SilentlyContinue
+Set-ItemProperty -Path $explorerSettings -Name "controlStyles[1].styles[1]" -Value "FontWeight=Bold" -ErrorAction SilentlyContinue
+
+# Target 2: 全域 TextBox (網址列編輯框、搜尋列編輯框)
+Set-ItemProperty -Path $explorerSettings -Name "controlStyles[2].target" -Value "TextBox" -ErrorAction SilentlyContinue
+Set-ItemProperty -Path $explorerSettings -Name "controlStyles[2].styles[0]" -Value "FontFamily=$fontFallback" -ErrorAction SilentlyContinue
+Set-ItemProperty -Path $explorerSettings -Name "controlStyles[2].styles[1]" -Value "FontWeight=Bold" -ErrorAction SilentlyContinue
 
 # ThemeResourceVariables: 覆寫 XAML 主題字型資源 (正文對齊 Noto Sans TC Bold，絕不覆蓋圖示資源)
 Set-ItemProperty -Path $explorerSettings -Name "themeResourceVariables[0]" -Value "ContentControlThemeFontFamily=Noto Sans TC" -ErrorAction SilentlyContinue
@@ -236,12 +245,23 @@ Write-Host "  -> File Explorer WinUI 3 圖示保護與粗體樣式配置完成�
 
 # 6. 重啟服務與檔案總管以立即生效
 Write-Host "[5/5] 重啟 Windhawk 服務與檔案總管以套用字型..." -ForegroundColor Yellow
-Restart-Service -Name "windhawk" -Force -ErrorAction SilentlyContinue
+$svc = Get-Service -Name "windhawk" -ErrorAction SilentlyContinue
+if ($svc) {
+    if ($svc.Status -ne 'Running') {
+        Start-Service -Name "windhawk" -ErrorAction SilentlyContinue
+    } else {
+        Restart-Service -Name "windhawk" -Force -ErrorAction SilentlyContinue
+    }
+}
+Start-Process -FilePath "C:\Program Files\Windhawk\windhawk.exe" -ArgumentList "-tray-only" -ErrorAction SilentlyContinue
+Start-Sleep -Seconds 2
+
 Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
-Start-Sleep -Seconds 1
+Start-Sleep -Seconds 2
 if (-not (Get-Process explorer -ErrorAction SilentlyContinue)) {
     Start-Process explorer
 }
+Start-Process explorer.exe "C:\" -ErrorAction SilentlyContinue
 Write-Host "  -> 服務與檔案總管重啟完成！" -ForegroundColor Green
 
 # 7. 自動執行字型渲染視覺化實機驗證

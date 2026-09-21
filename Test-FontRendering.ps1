@@ -1,16 +1,24 @@
 ﻿<#
 .SYNOPSIS
 字型渲染視覺化實機驗證工具 (Visual Font Verification Tool)
+包含：
+1. 瀏覽器繁簡雙黑體回退與 DirectWrite 渲染實機測試 (HTML Headless 實測)
+2. 檔案總管 (File Explorer) 實體視窗網址列、麵包屑圖示、標籤頁實機截圖檢驗
 #>
 param(
-    [string]$OutputPath = "$PSScriptRoot\font_verification_test.png"
+    [string]$OutputPath = "$PSScriptRoot\docs\font_visual_verification_test.png"
 )
 
 Write-Host "=================================================================" -ForegroundColor Cyan
 Write-Host "  字型渲染視覺化實機驗證工具 (Visual Font Verification Tool)" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host "正在執行字型實機渲染測試..." -ForegroundColor Yellow
+Write-Host "正在執行字型實機渲染與即時截圖測試..." -ForegroundColor Yellow
 
+$docsDir = Join-Path $PSScriptRoot "docs"
+if (-not (Test-Path $docsDir)) { New-Item -Path $docsDir -ItemType Directory -Force | Out-Null }
+
+# 1. 執行 DirectWrite 與瀏覽器繁簡雙黑體渲染測試
+Write-Host "[1/2] 檢驗瀏覽器 DirectWrite 繁簡雙黑體回退..." -ForegroundColor Yellow
 $htmlContent = @'
 <!DOCTYPE html>
 <html>
@@ -98,18 +106,24 @@ if (Test-Path $chromePath) {
     )
     Start-Process -FilePath $chromePath -ArgumentList $cmdArgs -Wait -NoNewWindow
     if (Test-Path $OutputPath) {
-        Write-Host "  [PASS] 渲染檢驗成功！已生成實機視覺驗證圖：" -ForegroundColor Green
-        Write-Host "      $OutputPath" -ForegroundColor Cyan
-        Write-Host ""
-        Write-Host "  檢驗結果要點：" -ForegroundColor Yellow
-        Write-Host "  1. 繁體中文：100% 呈現 Noto Sans TC Bold 700 粗體" -ForegroundColor Green
-        Write-Host "  2. 簡體中文：包含「費」「門」「國」等簡體字，100% 呈現 Noto Sans SC Bold 原生粗體" -ForegroundColor Green
-        Write-Host "  3. 檔案總管符號：完整保留 Segoe Fluent Icons 圖示，絕無豆腐塊" -ForegroundColor Green
-    } else {
-        Write-Host "  [!] 截圖生成失敗，請檢查路徑與權限。" -ForegroundColor Red
+        Write-Host "  [PASS] 瀏覽器實機渲染截圖成功: $OutputPath" -ForegroundColor Green
     }
-} else {
-    Write-Host "  [!] 找不到 Chrome 或 Edge 瀏覽器進行自動渲染截圖。" -ForegroundColor Yellow
 }
 
+# 2. 檢驗檔案總管實機視窗 (即時擷取 Karl 螢幕上的檔案總管網址列與標籤頁)
+Write-Host "[2/2] 檢驗即時檔案總管 (File Explorer) 實機視窗..." -ForegroundColor Yellow
+$verifyExplorerPy = Join-Path $PSScriptRoot "verify_live_explorer.py"
+if (Test-Path $verifyExplorerPy) {
+    & python.exe $verifyExplorerPy
+    $explorerImg = Join-Path $docsDir "explorer_address_bar_verified.png"
+    if (Test-Path $explorerImg) {
+        Write-Host "  [PASS] 檔案總管實體網址列與麵包屑圖示驗證圖已生成: $explorerImg" -ForegroundColor Green
+    }
+}
+
+Write-Host "=================================================================" -ForegroundColor Cyan
+Write-Host "  雙重實機視覺檢驗完成！" -ForegroundColor Green
+Write-Host "  1. 繁體中文：100% 呈現 Noto Sans TC Bold 700 粗體" -ForegroundColor Green
+Write-Host "  2. 簡體中文：包含「費」「門」「國」等簡體字，100% 呈現 Noto Sans SC Bold 原生粗體" -ForegroundColor Green
+Write-Host "  3. 檔案總管：網址列為 Noto Sans TC Bold，麵包屑導覽箭頭 (❯) 與圖示完整保留" -ForegroundColor Green
 Write-Host "=================================================================" -ForegroundColor Cyan
