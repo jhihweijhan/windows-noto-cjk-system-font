@@ -1,8 +1,9 @@
 /* ==========================================================================
    Noto Sans CJK Universal Font Override (Chrome / Edge / Chromium)
+   強制全網所有文字（包含繁體與簡體字）優先採用 Noto Sans TC 與 Noto Sans SC Bold
    ========================================================================== */
 
-/* 全域主文本元素強制優先套用思源黑體 (繁中 + 簡中平滑回退) */
+/* 全域主文本元素強制優先套用思源黑體 (繁中 Bold + 簡中 Bold 完美平滑回退) */
 :where(
   html, body, div, span, applet, object, iframe,
   h1, h2, h3, h4, h5, h6, p, blockquote,
@@ -18,7 +19,7 @@
   menu, nav, output, ruby, section, summary,
   time, mark, input, button, textarea, select
 ):not([class*="icon"]):not([class*="fa-"]):not([class*="material-"]):not([class*="glyph"]):not([class*="v-icon"]):not([class*="codicon"]) {
-    font-family: "Noto Sans TC", "Noto Sans SC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif !important;
+    font-family: "Noto Sans TC", "Noto Sans SC Bold", "Noto Sans SC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif !important;
 }
 
 /* 代碼元素保持等寬程式碼字型 */
