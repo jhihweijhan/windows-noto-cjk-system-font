@@ -45,6 +45,8 @@ if (Test-Path "$latestBackupDir\Fonts.reg") {
     Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei & Microsoft JhengHei UI (TrueType)' -Value 'msjh.ttc' -ErrorAction SilentlyContinue
     Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei Bold & Microsoft JhengHei UI Bold (TrueType)' -Value 'msjhbd.ttc' -ErrorAction SilentlyContinue
     Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei Light & Microsoft JhengHei UI Light (TrueType)' -Value 'msjhl.ttc' -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path $fontsKey -Name 'SimSun & NSimSun (TrueType)' -Value 'simsun.ttc' -ErrorAction SilentlyContinue
+    Set-ItemProperty -Path $fontsKey -Name 'MingLiU & PMingLiU & MingLiU_HKSCS (TrueType)' -Value 'mingliu.ttc' -ErrorAction SilentlyContinue
 
     # 清除 FontSubstitutes 替換
     $subKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\FontSubstitutes'

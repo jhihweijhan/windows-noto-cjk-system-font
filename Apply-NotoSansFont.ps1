@@ -196,6 +196,8 @@ Set-ItemProperty -Path $fontsKey -Name 'Segoe UI Variable (TrueType)' -Value ''
 Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei & Microsoft JhengHei UI (TrueType)' -Value ''
 Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei Bold & Microsoft JhengHei UI Bold (TrueType)' -Value ''
 Set-ItemProperty -Path $fontsKey -Name 'Microsoft JhengHei Light & Microsoft JhengHei UI Light (TrueType)' -Value ''
+Set-ItemProperty -Path $fontsKey -Name 'SimSun & NSimSun (TrueType)' -Value ''
+Set-ItemProperty -Path $fontsKey -Name 'MingLiU & PMingLiU & MingLiU_HKSCS (TrueType)' -Value ''
 
 # 啟用 Windows 完整快顯選單 (確保右鍵選單直接套用 Noto Sans TC 粗體)
 $clsidPath = "HKCU:\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32"
