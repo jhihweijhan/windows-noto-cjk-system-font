@@ -6,6 +6,32 @@
 // @license         MIT
 // @author          Karl & DeepMind Antigravity
 // @include         *
+// @exclude         dwm.exe
+// @exclude         sihost.exe
+// @exclude         ctfmon.exe
+// @exclude         TextInputHost.exe
+// @exclude         winlogon.exe
+// @exclude         logonui.exe
+// @exclude         conhost.exe
+// @exclude         taskhostw.exe
+// @exclude         RuntimeBroker.exe
+// @exclude         SearchHost.exe
+// @exclude         StartMenuExperienceHost.exe
+// @exclude         ShellExperienceHost.exe
+// @exclude         SecurityHealthHost.exe
+// @exclude         SecurityHealthSystray.exe
+// @exclude         bdagent.exe
+// @exclude         bdservicehost.exe
+// @exclude         vsserv.exe
+// @exclude         audiodg.exe
+// @exclude         smartscreen.exe
+// @exclude         AggregatorHost.exe
+// @exclude         csrss.exe
+// @exclude         lsass.exe
+// @exclude         services.exe
+// @exclude         smss.exe
+// @exclude         svchost.exe
+// @exclude         fontdrvhost.exe
 // @compilerOptions -ldwrite -lole32 -lgdi32 -luxtheme -lwindowsapp
 // ==/WindhawkMod==
 

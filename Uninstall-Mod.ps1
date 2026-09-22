@@ -1,12 +1,13 @@
 ﻿<#
 .SYNOPSIS
-Windhawk 思源黑體模組一鍵解除安裝與預設字型還原工具
+思源黑體系統字型模組一鍵解除安裝與預設字型還原工具
 .DESCRIPTION
 1. 自動提權 (UAC RunAs)
 2. 停用並解除註冊 windows-noto-sans-cjk 模組
 3. 清除 File Explorer Styler 中的自訂字型覆寫規則
-4. 還原系統 FontLink 與字型回退設定
-5. 重啟 Windhawk 與檔案總管以恢復 Windows 預設字型
+4. 還原 Windows 官方原生字型註冊 (msjh.ttc, SegUIVar.ttf, segoeui.ttf 等)
+5. 還原系統 FontSubstitutes 與 FontLink 設定
+6. 安全重整檔案總管以恢復 Windows 預設介面
 #>
 [CmdletBinding()]
 param()
@@ -16,11 +17,11 @@ Set-Location -LiteralPath $PSScriptRoot
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
     Write-Host "=================================================================" -ForegroundColor Cyan
-    Write-Host "  Windhawk 思源黑體模組解除安裝與還原工具" -ForegroundColor Cyan
+    Write-Host "  思源黑體系統字型解除安裝與還原工具" -ForegroundColor Cyan
     Write-Host "=================================================================" -ForegroundColor Cyan
     Write-Host "  正在請求系統管理員權限 (UAC)... 請在彈出視窗點選「是」" -ForegroundColor Yellow
     try {
-        Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -NoProfile -File `"$PSCommandPath`""
+        Start-Process powershell.exe -Verb RunAs -ArgumentList "-NoExit -ExecutionPolicy Bypass -NoProfile -File `"$PSCommandPath`""
     } catch {
         Write-Host "  [!] 未能取得系統管理員權限: $($_.Exception.Message)" -ForegroundColor Red
         Write-Host "  請在 Uninstall-Mod.bat 上按滑鼠右鍵，選擇「以系統管理員身分執行」。" -ForegroundColor Yellow
@@ -31,7 +32,7 @@ if (-not $isAdmin) {
 }
 
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host "  Windhawk 思源黑體模組解除安裝與還原工具" -ForegroundColor Cyan
+Write-Host "  思源黑體系統字型解除安裝與還原工具" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
 
 # 1. 停用並移除 Windhawk 模組註冊
@@ -57,30 +58,66 @@ if (Test-Path $stylerSettings) {
 Write-Host "  -> 檔案總管樣式已恢復預設！" -ForegroundColor Green
 
 # 3. 還原系統字型與 FontLink
-Write-Host "[3/4] 還原系統字型註冊與 FontLink 設定..." -ForegroundColor Yellow
+Write-Host "[3/4] 還原系統官方字型註冊、FontSubstitutes 與 FontLink 設定..." -ForegroundColor Yellow
 $fontsKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts'
-Set-ItemProperty -Path $fontsKey -Name 'SimSun & NSimSun (TrueType)' -Value 'simsun.ttc' -ErrorAction SilentlyContinue
-Set-ItemProperty -Path $fontsKey -Name 'MingLiU & PMingLiU & MingLiU_HKSCS (TrueType)' -Value 'mingliu.ttc' -ErrorAction SilentlyContinue
+$fontRestores = @{
+    'Microsoft JhengHei & Microsoft JhengHei UI (TrueType)'       = 'msjh.ttc'
+    'Microsoft JhengHei Bold & Microsoft JhengHei UI Bold (TrueType)' = 'msjhbd.ttc'
+    'Microsoft JhengHei Light & Microsoft JhengHei UI Light (TrueType)' = 'msjhl.ttc'
+    'Segoe UI (TrueType)'                                         = 'segoeui.ttf'
+    'Segoe UI Bold (TrueType)'                                    = 'segoeuib.ttf'
+    'Segoe UI Semibold (TrueType)'                                = 'seguisb.ttf'
+    'Segoe UI Light (TrueType)'                                   = 'segoeuil.ttf'
+    'Segoe UI Semilight (TrueType)'                               = 'segoeuisl.ttf'
+    'Segoe UI Variable (TrueType)'                                = 'SegUIVar.ttf'
+    'SimSun & NSimSun (TrueType)'                                 = 'simsun.ttc'
+    'MingLiU & PMingLiU & MingLiU_HKSCS (TrueType)'               = 'mingliu.ttc'
+    'Noto Sans TC (TrueType)'                                     = 'NotoSansTC-VF.ttf'
+    'Noto Sans SC (TrueType)'                                     = 'NotoSansSC-VF.ttf'
+}
+foreach ($kv in $fontRestores.GetEnumerator()) {
+    Set-ItemProperty -Path $fontsKey -Name $kv.Key -Value $kv.Value -ErrorAction SilentlyContinue
+}
+
+$subKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\FontSubstitutes'
+$removeSubs = @(
+    'Microsoft JhengHei', 'Microsoft JhengHei UI', '微軟正黑體',
+    'Segoe UI', 'Segoe UI Variable', 'Segoe UI Variable Text', 'Segoe UI Variable Display', 'Segoe UI Variable Small',
+    'Segoe UI Variable Text Bold', 'Segoe UI Variable Display Bold', 'Segoe UI Variable Small Bold',
+    'Segoe UI Variable Text Semibold', 'Segoe UI Variable Display Semibold', 'Segoe UI Variable Small Semibold',
+    'SimSun', 'NSimSun', 'MingLiU', 'PMingLiU',
+    'Microsoft JhengHei,0', 'Microsoft JhengHei UI,0', 'Microsoft JhengHei,136', 'Microsoft JhengHei UI,136',
+    'Segoe UI,0', 'Segoe UI,136'
+)
+foreach ($s in $removeSubs) {
+    Remove-ItemProperty -Path $subKey -Name $s -ErrorAction SilentlyContinue
+}
 
 $fontLinkKey = 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\FontLink\SystemLink'
-$cjkFonts = @('Segoe UI', 'Noto Sans TC', 'Microsoft JhengHei UI', 'Microsoft JhengHei', 'Tahoma')
+$cjkFonts = @(
+    'Segoe UI', 'Segoe UI Bold', 'Segoe UI Semibold', 'Segoe UI Light', 'Segoe UI Semilight',
+    'Segoe UI Variable Text', 'Segoe UI Variable Text Bold', 'Segoe UI Variable Text Semibold',
+    'Segoe UI Variable Display', 'Segoe UI Variable Display Bold', 'Segoe UI Variable Display Semib',
+    'Segoe UI Variable Small', 'Segoe UI Variable Small Bold', 'Segoe UI Variable Small Semibol',
+    'Microsoft JhengHei UI', 'Microsoft JhengHei UI Bold',
+    'Microsoft JhengHei', 'Microsoft JhengHei Bold',
+    'Noto Sans TC', 'Noto Sans TC Bold',
+    'Tahoma', 'Arial'
+)
 foreach ($f in $cjkFonts) {
     $existing = (Get-ItemProperty -Path $fontLinkKey -Name $f -ErrorAction SilentlyContinue).$f
     if ($existing) {
-        $restored = $existing | Where-Object { $_ -notmatch 'NotoSansSC' }
+        $restored = $existing | Where-Object { $_ -notmatch 'NotoSans' }
         Set-ItemProperty -Path $fontLinkKey -Name $f -Value $restored -Type MultiString -ErrorAction SilentlyContinue
     }
 }
-Write-Host "  -> 字型鏈結已恢復！" -ForegroundColor Green
+Write-Host "  -> 系統字型與鏈結已恢復為官方預設！" -ForegroundColor Green
 
-# 4. 重啟服務與檔案總管
-Write-Host "[4/4] 重啟 Windhawk 服務與檔案總管..." -ForegroundColor Yellow
-Restart-Service -Name "windhawk" -Force -ErrorAction SilentlyContinue
+# 4. 安全重啟檔案總管
+Write-Host "[4/4] 安全重整檔案總管..." -ForegroundColor Yellow
 Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
 Start-Sleep -Seconds 2
-if (-not (Get-Process explorer -ErrorAction SilentlyContinue)) {
-    Start-Process explorer
-}
+Invoke-WmiMethod -Class Win32_Process -Name Create -ArgumentList "explorer.exe" -ErrorAction SilentlyContinue | Out-Null
 Write-Host "=================================================================" -ForegroundColor Cyan
 Write-Host "  [SUCCESS] 解除安裝完成！全系統字型已完全恢復 Windows 官方預設狀態。" -ForegroundColor Green
 Write-Host "=================================================================" -ForegroundColor Cyan

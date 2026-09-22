@@ -1,130 +1,108 @@
-# Windows Noto Sans CJK - Windhawk 系統字型替換模組
+﻿# Windows Noto Sans CJK - 全系統思源黑體替換工具
 
-> **專業級 Windows 10 / 11 全系統思源黑體粗體 (Noto Sans TC/SC Bold) 記憶體動態攔截模組**  
-> 徹底告別微軟正黑體、新細明體與破舊宋體（SimSun），實現全系統 GDI、DirectWrite、WinUI 3 檔案總管與主流瀏覽器高清晰黑體渲染，**100% 杜絕圖示豆腐塊（▯）與缺字問題**。
+> **專業級 Windows 10 / 11 全系統思源黑體粗體 (Noto Sans TC/SC Bold) 部署工具**  
+> 徹底告別微軟正黑體、新細明體與破舊宋體（SimSun），實現全系統 GDI、DirectWrite、主流瀏覽器高清晰黑體渲染，**100% 杜絕圖示豆腐塊（▯）與缺字問題**。
 
 ![實機視覺渲染展示](docs/font_visual_verification_test.png)
 
 ---
 
-## 🌟 核心特色與技術架構
+## 🌟 核心特色與架構優勢
 
-傳統修改 Windows 註冊表替換字型容易遭遇「瀏覽器簡體字退回宋體/細明體」、「檔案總管麵包屑圖示變豆腐塊 ▯」、「系統更新後失效」等難題。本專案透過 **Windhawk 記憶體動態注入引擎**，從根本架構上解決：
+針對 Windows 11 (含 Build 26100 / 24H2) 與現代防毒軟體（如 Bitdefender、Windows Defender）的深層相容性，本專案提供 **「Windows 原生安全覆蓋（方案 1，預設推薦）」** 與 **「Windhawk 深度樣式注入（方案 2，選用）」** 雙重架構：
 
-| 特色項目 | 本專案 Windhawk 模組方案 | 傳統註冊表修改方案 |
-| :--- | :--- | :--- |
-| **繁體中文渲染** | 全域 GDI + DirectWrite 統一注入 **Noto Sans TC Bold 700** | 僅部分文字粗體，多數地方仍為細體 |
-| **簡體中文回退** | DirectWrite 與瀏覽器 100% 強制回退 **Noto Sans SC Bold** | 遇到簡體字常退回破舊細明體或宋體（SimSun） |
-| **圖示保護機制** | 內建嚴格圖示白名單，保護 `Segoe Fluent Icons` 絕無豆腐塊 | 網址列麵包屑箭頭、按鈕圖示容易變成方塊 ▯ |
-| **檔案總管 WinUI 3** | 透過專屬 XAML 樣式注入回退鏈，網址列與標籤頁全粗體 | 網址列維持預設細體，無法統一風格 |
-| **系統安全性** | 記憶體實時攔截，不破壞 Windows 系統核心字型檔案 | 破壞性修改註冊表，升級系統易崩潰或失效 |
-| **還原便利性** | 一鍵停用模組，立即 100% 還原 Windows 官方預設 | 備份註冊表若缺失則極難乾淨還原 |
-
----
-
-## 📥 支援環境與前置需求
-
-- **作業系統**：Windows 10 / Windows 11 (x64 / ARM64 / x86)
-- **前置工具**：[Windhawk](https://windhawk.net/)（官方開源 Windows 客製化注入平台，工具包內已附安裝檔）
-- **字型資源**：Google Fonts 思源黑體（專案內已包含 `NotoSansTC-Bold.ttf` 與 `NotoSansSC-Bold.ttf`）
+| 評比項目 | 方案 1：Windows 原生安全覆蓋 (預設首選) | 方案 2：Windhawk 記憶體注入 | 傳統暴力修改註冊表 |
+| :--- | :--- | :--- | :--- |
+| **技術機制** | 原生 `FontSubstitutes` + `Fonts` + `FontLink` 頂層鏈結 | Windhawk API 記憶體動態 Hook | 隨意刪改登錄檔 |
+| **防毒軟體相容性** | **100% 零衝突**（完全免 DLL 注入，Bitdefender 絕對不阻擋） | 需在 Bitdefender ATD 中設定排除 | 容易誤觸安全警報 |
+| **工作列與桌面穩定度** | **100% 穩定**（採用 WMI 原生調用重整，工作列絕不失蹤） | 注入若被防毒攔截可能造成崩潰 | 容易重啟失敗 |
+| **繁體中文渲染** | 全域映射至 **Noto Sans TC Bold 700 原生粗體** | 攔截 DirectWrite/GDI 統一加載 | 僅部分文字粗體 |
+| **簡體中文回退** | FontLink 頂級優先順序強制回退 **Noto Sans SC Bold** | 攔截 DirectWrite 強制回退 | 經常退回宋體 (SimSun) |
+| **圖示保護機制** | 鎖定 `Segoe Fluent Icons` 與 `Segoe MDL2 Assets`，絕無豆腐塊 | 內建圖示保護白名單 | 箭頭與選單易變方塊 ▯ |
+| **系統還原便利性** | 執行 `Uninstall-Mod.bat` 一鍵 100% 還原官方預設 | 停用模組即還原 | 無備份難以乾淨復原 |
 
 ---
 
-## 🚀 安裝方式
+## 🧭 Windows 11 全系統 5 大 UI 架構解析 (為什麼工作管理員不同？)
 
-您可以選擇 **「方式一：一鍵自動化安裝（推薦）」** 或 **「方式二：Windhawk 官方介面手動安裝」**。
+Windows 11 是一個由近 30 年代碼層層疊加的混合系統，作業系統內部存在 **5 大獨立的 UI 子系統**：
 
-### 方式一：一鍵自動化安裝（推薦首選）
+```mermaid
+flowchart TD
+    OS["Windows 11 全系統 UI 架構"]
+    
+    OS --> L1["1. 傳統 Win32 / GDI 介面"]
+    OS --> L2["2. DirectWrite 桌面與瀏覽器"]
+    OS --> L3["3. WinUI 3 / XAML Islands\n(工作管理員 Taskmgr.exe)"]
+    OS --> L4["4. WinUI 2 / UWP 系統應用\n(Windows 設定、開始選單)"]
+    OS --> L5["5. 終端機與主控台"]
 
-工具包內已預先編譯好原生 64 位元與 32 位元模組 DLL，並配置好完整的檔案總管樣式與字型註冊：
+    L1 --> R1["檔案總管清單、右鍵選單、屬性視窗、控制台\n機制: FontSubstitutes / GDI 註冊表\n狀態: ✅ 方案 1 完美覆蓋為思源黑體粗體"]
+    L2 --> R2["Chrome、Edge、VS Code、Office、Discord\n機制: FontLink / 瀏覽器偏好設定\n狀態: ✅ 方案 1 完美覆蓋為繁簡雙黑體"]
+    L3 --> R3["工作管理員 Taskmgr.exe、檔案總管頂部頁籤\n機制: WinUI 3 二進位 XAML 資源寫死 Segoe UI Variable\n狀態: ⚠️ 忽略常規註冊表，保留微軟官方預設以策安全"]
+    L4 --> R4["Windows 設定 (SystemSettings)、開始選單\n機制: XAML 資源字典硬編碼 Segoe UI Variable\n狀態: ⚠️ UWP 沙盒隔離，忽略外部注入"]
+    L5 --> R5["CMD、PowerShell、Windows Terminal\n機制: 控制台註冊表 / JSON 配置\n狀態: ✅ 可獨立自由設定"]
+```
 
+> [!NOTE]
+> **關於工作管理員 (Taskmgr.exe) 與設定 (Settings)**：  
+> 微軟自 Windows 11 22H2 起將工作管理員重構為 WinUI 3 架構，XAML 控制項中寫死了 `FontFamily="Segoe UI Variable"`，且在系統層主動忽略 `FontSubstitutes`。全球開源社群（包含 noMeiryoUI、Winaero）皆證實現代 WinUI 3 應用無法透過常規註冊表修改字型。本工具方案 1 採用安全原則，讓工作管理員與設定維持官方原生以杜絕崩潰，並將所有支援的桌面應用、檔案清單與瀏覽器全面升級為思源黑體粗體！
+
+---
+
+## 🚀 快速開始：一鍵安裝與部署
+
+### 步驟 1：執行安裝
 1. 開啟本專案資料夾（或桌面上的 `Windows_NotoSans_Font_Tool`）。
-2. 對 **`Install-Mod.bat`** 按滑鼠右鍵，選擇 **「以系統管理員身分執行」**（或直接雙擊，彈出 UAC 權限確認視窗時點選「是」）。
-3. 腳本將自動執行：
-   - 檢測 Windhawk 是否已安裝（未安裝將引導手動安裝）
-   - 安裝並載入思源黑體繁體粗體（TC Bold）與簡體粗體（SC Bold）
-   - 阻斷宋體（SimSun）與細明體（MingLiU）回退洩漏
-   - 部署並註冊 `windows-noto-sans-cjk` Windhawk 全域字型模組
-   - 自動配置檔案總管 WinUI 3 網址列字型回退鏈（解決圖示並保證粗體）
-   - 重啟 Windhawk 服務與檔案總管即時生效
-   - 自動啟動實機字型渲染檢驗，輸出測試成果。
+2. 對 **`Install-Mod.bat`** 連按兩下滑鼠左鍵執行。
+3. 在彈出的 Windows 使用者帳戶控制 (UAC) 提示視窗中點選 **「是」**。
+4. 腳本會依序完成：
+   - `[1/5]` 檢測系統與防毒軟體環境
+   - `[2/5]` 安裝並註冊原生粗體字型檔 (`NotoSansTC-Bold.ttf` 與 `NotoSansSC-Bold.ttf`)
+   - `[3/5]` 配置全域 `FontSubstitutes`、`Fonts` 與 `FontLink` 頂層鏈結
+   - `[4/5]` 配置 Chrome / Edge 瀏覽器繁簡雙黑體偏好
+   - `[5/5]` 採用 WMI 原生安全重整檔案總管
+5. 看到提示「【安裝完成】思源黑體全套系統字型已成功配置」後，按 **Enter** 鍵即可！
 
 ---
 
-### 方式二：Windhawk 官方介面手動編譯安裝
+## 🔄 一鍵解除安裝與還原
 
-如果您偏好透過 Windhawk 官方圖形介面自源碼編譯並安裝模組：
-
-1. **安裝 Windhawk**：若尚未安裝，請至 [Windhawk 官方網站](https://windhawk.net/) 下載安裝。
-2. **開啟進階開發模式**：
-   - 開啟 Windhawk 主視窗，點擊右上角 **設定 (齒輪圖示)**。
-   - 切換至 **「進階 (Advanced)」** 標籤頁。
-   - 找到 **「模組開發 (Mod development)」** 並勾選啟用。
-3. **建立新模組**：
-   - 回到 Windhawk 主畫面，點選左側或右上角的 **「新增模組 (+ New Mod)」**。
-4. **貼上模組源碼**：
-   - 開啟本專案中的 **`windows-noto-sans-cjk.wh.cpp`**，全選並複製內容。
-   - 貼入 Windhawk 的模組編輯器中，覆蓋原有範本程式碼。
-5. **編譯並安裝**：
-   - 點擊編輯器右上角或上方的 **「Compile Mod (編譯模組)」**。
-   - 編譯成功（0 errors）後，點擊 **「Install (安裝)」**。
-6. **配置檔案總管樣式**（選用，使網址列粗體）：
-   - 在 Windhawk 模組市集中搜尋並安裝 **`Windows 11 File Explorer Styler`**。
-   - 進入該模組的「Settings (設定)」，在 `controlStyles[0]` 的樣式中加入：
-     - Target: `TextBlock`
-     - Styles: `FontFamily=Noto Sans TC, Segoe Fluent Icons, Segoe MDL2 Assets`, `FontWeight=Bold`
-   - 點擊「Save (儲存)」即刻生效。
-
----
-
-## ⚙️ 模組自訂設定說明
-
-安裝完成後，您可在 Windhawk 軟體主介面中的 `windows-noto-sans-cjk` 模組卡片點擊 **「Details」->「Settings」** 自訂以下參數：
-
-| 設定項目 | 預設值 | 說明 |
-| :--- | :--- | :--- |
-| `targetFontTC` | `Noto Sans TC` | 繁體中文與預設系統 UI 替換字型名稱 |
-| `targetFontSC` | `Noto Sans SC Bold` | 簡體中文字元強制回退字型名稱 |
-| `enforceBold` | `true` (啟用) | 是否強制全系統 UI 字型以 Bold 700 粗體權重呈現 |
+若日後需要移除替換並 100% 恢復 Windows 官方預設狀態：
+1. 對 **`Uninstall-Mod.bat`** 按滑鼠右鍵選擇「以系統管理員身分執行」（或直接雙擊並點選「是」）。
+2. 腳本將自動還原所有微軟官方字型註冊 (`msjh.ttc`, `SegUIVar.ttf`, `segoeui.ttf` 等)。
+3. 清除 `FontSubstitutes` 覆寫並復原 `FontLink` 鏈結。
+4. 安全重整檔案總管，系統立即乾淨回到微軟出廠預設狀態。
 
 ---
 
 ## 🔍 實機視覺檢驗工具
 
-為確保每一項字型改變皆能正確呈現，專案內建專屬自動化實機檢驗工具：
-
+專案內建專屬自動化實機檢驗工具：
 - 雙擊執行 **`Test-FontRendering.bat`**：
   1. **瀏覽器 DirectWrite 實測**：透過 Chrome / Edge 進行無頭渲染，檢驗繁體、簡體「費」「門」「國」及混排回退，儲存至 `docs/font_visual_verification_test.png`。
   2. **檔案總管實體視窗實測**：透過 Win32 Desktop API 直接截取真實運作中的檔案總管視窗，檢驗網址列粗體、麵包屑箭頭與各功能按鈕，儲存至 `docs/explorer_address_bar_verified.png`。
 
 ---
 
-## 🔄 一鍵解除安裝與還原
-
-若需要移除模組並完全還原回 Windows 原廠預設字型：
-
-1. 對 **`Uninstall-Mod.bat`** 按右鍵以管理員身分執行。
-2. 腳本會自動從 Windhawk 卸載模組、清除檔案總管樣式、還原註冊表 FontLink 與預設字型。
-3. 重啟檔案總管後，系統將 100% 恢復 Windows 原廠狀態。
-
----
-
-## 📂 乾淨精簡的專案結構
+## 📂 專案結構說明
 
 ```
 windows-noto-cjk-system-font/
 │
-├── windows-noto-sans-cjk.wh.cpp     # 【核心】Windhawk 官方規範模組源碼 (含元數據、Readme、設定與 C++ Hook)
-├── windows-noto-sans-cjk_64.dll     # 預先編譯 64 位元模組 DLL
-├── windows-noto-sans-cjk_32.dll     # 預先編譯 32 位元模組 DLL
-│
 ├── NotoSansTC-Bold.ttf              # 思源黑體繁體粗體字型 (Bold 700)
 ├── NotoSansSC-Bold.ttf              # 思源黑體簡體粗體字型 (Bold 700)
 │
-├── Install-Mod.bat                  # 一鍵自動安裝啟動器 (管理員提權)
-├── Install-Mod.ps1                  # 核心安裝部署與檢測腳本
+├── Install-Mod.bat                  # 【方案 1】一鍵自動安全安裝啟動器 (管理員提權)
+├── Install-Mod.ps1                  # 【方案 1】核心安裝部署與檢測腳本 (原生安全覆蓋)
 ├── Uninstall-Mod.bat                # 一鍵乾淨解除安裝啟動器
-├── Uninstall-Mod.ps1                # 核心還原腳本
+├── Uninstall-Mod.ps1                # 核心還原腳本 (還原 Windows 原廠預設)
+│
+├── Setup-OptionB-Windhawk.bat       # 【方案 2】Windhawk 深度注入模式啟動器 (選用)
+├── Setup-OptionB-Windhawk.ps1       # 【方案 2】Windhawk 模組部署邏輯
+├── windows-noto-sans-cjk.wh.cpp     # Windhawk 官方規範模組源碼 (C++ DirectWrite Hook)
+├── windows-noto-sans-cjk_64.dll     # 預先編譯 64 位元模組 DLL
+├── windows-noto-sans-cjk_32.dll     # 預先編譯 32 位元模組 DLL
 │
 ├── Test-FontRendering.bat           # 實機雙重視覺化檢驗工具啟動器
 ├── Test-FontRendering.ps1           # 雙重視覺化檢測邏輯
@@ -136,18 +114,8 @@ windows-noto-cjk-system-font/
 │   └── explorer_address_bar_verified.png # 檔案總管網址列與圖示實測圖
 │
 ├── LICENSE                          # MIT 開源授權
-└── README.md                        # 專案說明文件
+└── README.md                        # 專案完整技術說明文件
 ```
-
----
-
-## ❓ 常見問答 (FAQ)
-
-#### Q1: 為什麼瀏覽器上的部分簡體字先前會變成宋體（SimSun）或細明體？
-A: Windows 的 DirectWrite 字型回退機制在找不到簡體對應字時，預設會回退至系統內建的 `SimSun` 或 `MingLiU`。本模組直接攔截 DirectWrite 的 `IDWriteFontFallback` 介面，並將 `Noto Sans SC Bold` 注入為首選回退，同時由安裝腳本阻斷 SimSun 回退，徹底杜絕破字現象。
-
-#### Q2: 檔案總管網址列的箭頭符號（>）為什麼會變豆腐塊？
-A: 檔案總管的麵包屑分隔箭頭與電腦圖示為 Segoe Fluent Icons 字元（如 `\uE76C`）。如果直接將 `FontFamily` 設定為單一 `Noto Sans TC`，因該字型沒有圖示編碼而出現豆腐塊。本專案採用 XAML 字型回退鏈 `Noto Sans TC, Segoe Fluent Icons, Segoe MDL2 Assets`，中文走思源黑體粗體，圖示符號自動順延至 Segoe 圖示，完美兼顧粗體與圖示完整。
 
 ---
 

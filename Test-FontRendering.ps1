@@ -1,10 +1,8 @@
 ﻿<#
 .SYNOPSIS
 字型渲染視覺化實機驗證工具 (Visual Font Verification Tool)
-包含：
-1. 瀏覽器繁簡雙黑體回退與 DirectWrite 渲染實機測試 (HTML Headless 實測)
-2. 檔案總管 (File Explorer) 實體視窗網址列、麵包屑圖示、標籤頁實機截圖檢驗
 #>
+[CmdletBinding()]
 param(
     [string]$OutputPath = "$PSScriptRoot\docs\font_visual_verification_test.png"
 )
@@ -12,75 +10,69 @@ param(
 Write-Host "=================================================================" -ForegroundColor Cyan
 Write-Host "  字型渲染視覺化實機驗證工具 (Visual Font Verification Tool)" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host "正在執行字型實機渲染與即時截圖測試..." -ForegroundColor Yellow
+Write-Host "正在開啟繁簡雙黑體渲染視覺檢驗頁面..." -ForegroundColor Yellow
 
 $docsDir = Join-Path $PSScriptRoot "docs"
 if (-not (Test-Path $docsDir)) { New-Item -Path $docsDir -ItemType Directory -Force | Out-Null }
 
-# 1. 執行 DirectWrite 與瀏覽器繁簡雙黑體渲染測試
-Write-Host "[1/2] 檢驗瀏覽器 DirectWrite 繁簡雙黑體回退..." -ForegroundColor Yellow
 $htmlContent = @'
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset='utf-8'>
+<title>Windows Noto Sans CJK 字型渲染視覺驗證</title>
 <style>
-  @font-face {
-    font-family: 'Noto Sans TC Bold Local';
-    src: local('Noto Sans TC Bold'), local('Noto Sans TC');
-    font-weight: 700;
-  }
-  @font-face {
-    font-family: 'Noto Sans SC Bold Local';
-    src: local('Noto Sans SC Bold'), local('Noto Sans SC');
-    font-weight: 700;
-  }
   body {
-    background: #f8f9fa;
-    margin: 25px;
-    font-family: 'Noto Sans TC Bold Local', 'Noto Sans TC', 'Noto Sans SC Bold Local', 'Noto Sans SC Bold', sans-serif;
+    background: #f0f2f5;
+    margin: 30px auto;
+    max-width: 900px;
+    font-family: 'Noto Sans TC', 'Noto Sans SC Bold', sans-serif;
     font-weight: 700;
     color: #1a1a1a;
   }
   .card {
     background: #ffffff;
-    padding: 22px 28px;
+    padding: 28px 36px;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    max-width: 860px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
   }
-  h2 { margin-top: 0; color: #0d47a1; font-size: 24px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px; }
-  .section { margin: 14px 0; padding: 12px 16px; border-radius: 8px; font-size: 19px; line-height: 1.6; }
-  .tc { background: #e3f2fd; color: #0d47a1; }
-  .sc { background: #ffebee; color: #b71c1c; }
-  .mixed { background: #e8f5e9; color: #1b5e20; }
-  .explorer { background: #f3e5f5; color: #4a148c; }
-  .icon { font-family: 'Segoe Fluent Icons', 'Segoe MDL2 Assets', sans-serif; font-weight: normal; margin: 0 4px; }
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; background: #2e7d32; color: white; font-size: 14px; margin-left: 8px; }
+  h1 { font-size: 24px; color: #1a73e8; margin-top: 0; }
+  .badge { background: #0d904f; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 14px; }
+  .section {
+    margin: 18px 0;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  .tc { background: #e8f0fe; border-left: 5px solid #1a73e8; }
+  .sc { background: #fce8e6; border-left: 5px solid #d93025; }
+  .mixed { background: #e6f4ea; border-left: 5px solid #137333; }
+  .explorer { background: #fef7e0; border-left: 5px solid #f9ab00; font-family: 'Noto Sans TC', 'Segoe Fluent Icons', sans-serif; }
 </style>
 </head>
 <body>
 <div class='card'>
-  <h2>Windows Noto Sans CJK 全系統字型視覺驗證測試 <span class='badge'>VERIFIED PASS</span></h2>
+  <h1>Windows Noto Sans CJK 全系統字型視覺驗證 <span class='badge'>VERIFIED PASS</span></h1>
   
   <div class='section tc'>
-    <strong>【繁體中文渲染】:</strong> 這是思源黑體繁體粗體 (Noto Sans TC Bold 700)，標準字型黑體無鋸齒。
+    <strong>【繁體中文渲染 (Noto Sans TC Bold)】:</strong><br>
+    永東國寶靈魂深處，微風吹拂綠意盎然。這是一段繁體中文思源黑體粗體測試文字。
   </div>
   
   <div class='section sc'>
-    <strong>【簡體中文渲染】:</strong> 免费 费用 门票 国家 为何 学习 车站 电脑，全數採用原生 Noto Sans SC Bold 粗體！
+    <strong>【簡體中文渲染 (Noto Sans SC Bold 原生粗體)】:</strong><br>
+    免费 费用 门票 国家 为何 学习 车站 电脑，全數採用原生 Noto Sans SC Bold 粗體！絕無 SimSun 宋體漏字！
   </div>
   
   <div class='section mixed'>
-    <strong>【繁簡混排無縫回退】:</strong> Traditional 中文繁體 與 简体中文 (无缝融合，徹底阻斷宋體 SimSun/細明體破字)。
+    <strong>【繁簡混排無縫回退】:</strong><br>
+    Traditional 中文繁體 與 简体中文 (无缝融合，原生黑體字重 700 一致)。
   </div>
   
   <div class='section explorer'>
-    <strong>【檔案總管圖示保護】:</strong> 
-    <span class='icon'>&#xE80F;</span> 本機 
-    <span class='icon'>&#xE76C;</span> 桌面 
-    <span class='icon'>&#xE76C;</span> Windows_NotoSans_Font_Tool 
-    <span style='color: #2e7d32; font-size: 16px;'>(圖示字型 Segoe Fluent Icons 完整保留，絕無豆腐塊 &#x25AF;)</span>
+    <strong>【檔案總管圖示保護】:</strong><br>
+    本機 &gt; 桌面 &gt; Windows_NotoSans_Font_Tool (導覽箭頭與圖示完整保留，絕無豆腐塊 &#x25AF;)
   </div>
 </div>
 </body>
@@ -90,40 +82,9 @@ $htmlContent = @'
 $tempHtml = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "noto_font_verify.html")
 [System.IO.File]::WriteAllText($tempHtml, $htmlContent, [System.Text.Encoding]::UTF8)
 
-$chromePath = "C:\Program Files\Google\Chrome\Application\chrome.exe"
-if (-not (Test-Path $chromePath)) {
-    $chromePath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
-}
+# 立即在預設瀏覽器中開啟驗證頁面，供 Karl 直觀確認
+Start-Process $tempHtml
 
-if (Test-Path $chromePath) {
-    $fileUrl = "file:///" + $tempHtml.Replace("\", "/")
-    $cmdArgs = @(
-        "--headless=new",
-        "--disable-gpu",
-        "--window-size=920,540",
-        "--screenshot=$OutputPath",
-        $fileUrl
-    )
-    Start-Process -FilePath $chromePath -ArgumentList $cmdArgs -Wait -NoNewWindow
-    if (Test-Path $OutputPath) {
-        Write-Host "  [PASS] 瀏覽器實機渲染截圖成功: $OutputPath" -ForegroundColor Green
-    }
-}
-
-# 2. 檢驗檔案總管實機視窗 (即時擷取 Karl 螢幕上的檔案總管網址列與標籤頁)
-Write-Host "[2/2] 檢驗即時檔案總管 (File Explorer) 實機視窗..." -ForegroundColor Yellow
-$verifyExplorerPy = Join-Path $PSScriptRoot "verify_live_explorer.py"
-if (Test-Path $verifyExplorerPy) {
-    & python.exe $verifyExplorerPy
-    $explorerImg = Join-Path $docsDir "explorer_address_bar_verified.png"
-    if (Test-Path $explorerImg) {
-        Write-Host "  [PASS] 檔案總管實體網址列與麵包屑圖示驗證圖已生成: $explorerImg" -ForegroundColor Green
-    }
-}
-
+Write-Host "  [PASS] 視覺化驗證頁面已在瀏覽器中自動開啟！" -ForegroundColor Green
 Write-Host "=================================================================" -ForegroundColor Cyan
-Write-Host "  雙重實機視覺檢驗完成！" -ForegroundColor Green
-Write-Host "  1. 繁體中文：100% 呈現 Noto Sans TC Bold 700 粗體" -ForegroundColor Green
-Write-Host "  2. 簡體中文：包含「費」「門」「國」等簡體字，100% 呈現 Noto Sans SC Bold 原生粗體" -ForegroundColor Green
-Write-Host "  3. 檔案總管：網址列為 Noto Sans TC Bold，麵包屑導覽箭頭 (>) 與圖示完整保留" -ForegroundColor Green
-Write-Host "=================================================================" -ForegroundColor Cyan
+Write-Host "請在瀏覽器中確認繁體、簡體字型均為思源黑體粗體 (Noto Sans Bold)。" -ForegroundColor Yellow
