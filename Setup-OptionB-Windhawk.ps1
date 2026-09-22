@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-方案 B：Windhawk 全套系統思源黑體 (Noto Sans TC/SC Bold) 模組部署與圖示保護
+Windhawk 思源黑體 (Noto Sans CJK Bold) 全套系統模組一鍵安裝與部署工具
 .DESCRIPTION
 1. 自我權限檢測與自動提權 (UAC RunAs)
 2. 嚴格系統檢測：檢測系統是否已安裝 Windhawk，未安裝引導手動安裝
@@ -10,8 +10,8 @@
    - GDI 攔截：替換微軟正黑體、新細明體為 Noto Sans TC Bold
    - DirectWrite 攔截：強制簡體字回退至 Noto Sans SC Bold
    - 圖示保護：嚴格白名單保護 Segoe Fluent Icons，確保絕不出現豆腐塊
-6. 自動修復 File Explorer WinUI 3 麵包屑導覽圖示與粗體樣式
-7. 自動刷新檔案總管並執行字型視覺化實機驗證
+6. 自動修復 File Explorer WinUI 3 麵包屑導覽圖示與粗體樣式 (FontFamily 回退鏈)
+7. 自動刷新檔案總管並執行字型雙重視覺化實機驗證 (瀏覽器 + 檔案總管實體視窗)
 #>
 [CmdletBinding()]
 param()
@@ -31,6 +31,8 @@ $ErrorActionPreference = "Continue"
 
 # 1. 權限檢測與自動提權
 Set-Location -LiteralPath $PSScriptRoot
+$logFile = Join-Path $PSScriptRoot "install.log"
+try { Start-Transcript -Path $logFile -Force -ErrorAction SilentlyContinue | Out-Null } catch {}
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
     Write-Host "=================================================================" -ForegroundColor Cyan
@@ -42,7 +44,8 @@ if (-not $isAdmin) {
     } catch {
         Write-Host "  [!] 未能取得系統管理員權限: $($_.Exception.Message)" -ForegroundColor Red
         Write-Host "  請在 Install-Mod.bat 上按滑鼠右鍵，選擇「以系統管理員身分執行」。" -ForegroundColor Yellow
-        Read-Host "按 Enter 鍵結束..."
+        try { Stop-Transcript | Out-Null } catch {}
+Read-Host "按 Enter 鍵結束..."
         exit 1
     }
     exit 0
@@ -52,6 +55,7 @@ Write-Host "=================================================================" -
 Write-Host "  Windhawk 思源黑體 (Noto Sans CJK) 系統模組一鍵安裝" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
 
+# 2. 嚴格系統檢測：檢查 Windhawk 是否已安裝
 Write-Host "[1/5] 檢測系統是否已安裝 Windhawk..." -ForegroundColor Yellow
 $windhawkExe = "C:\Program Files\Windhawk\windhawk.exe"
 $windhawkReg = "HKLM:\SOFTWARE\Windhawk"
@@ -60,7 +64,7 @@ $isInstalled = (Test-Path $windhawkExe) -or (Test-Path $windhawkReg)
 if (-not $isInstalled) {
     Write-Host ""
     Write-Host "  [X] 系統檢測未通過：尚未安裝 Windhawk！" -ForegroundColor Red
-    Write-Host "      方案 B 需要借助 Windhawk 注入引擎以實時攔截 GDI 與 DirectWrite 字型。" -ForegroundColor Yellow
+    Write-Host "      本方案需要借助 Windhawk 注入引擎以實時攔截 GDI 與 DirectWrite 字型。" -ForegroundColor Yellow
     Write-Host ""
     $localInstaller = Join-Path $PSScriptRoot "windhawk_setup.exe"
     if (-not (Test-Path $localInstaller)) {
@@ -86,7 +90,8 @@ if (-not $isInstalled) {
         Write-Host "  [!] 系統依然未檢測到 Windhawk 安裝，腳本將安全退出。" -ForegroundColor Red
         Write-Host "      請在完成 Windhawk 安裝後，再次執行本腳本即可自動完成配置！" -ForegroundColor Yellow
         Write-Host "=================================================================" -ForegroundColor Cyan
-        Read-Host "按 Enter 鍵結束..."
+        try { Stop-Transcript | Out-Null } catch {}
+Read-Host "按 Enter 鍵結束..."
         exit
     }
 }
@@ -209,7 +214,7 @@ if (-not (Test-Path $uWritable)) { New-Item -Path $uWritable -Force | Out-Null }
 Set-ItemProperty -Path $uWritable -Name "Disabled" -Value 0 -Type DWord -ErrorAction SilentlyContinue
 Write-Host "  -> 已完成 Windhawk 全域字型模組註冊與啟用！" -ForegroundColor Green
 
-# 5. 修復 File Explorer WinUI 3 樣式 (徹底解決麵包屑導覽符號變豆腐塊問題)
+# 5. 修復 File Explorer WinUI 3 樣式 (徹底解決麵包屑導覽符號變豆腐塊問題，同時保證字型為 Noto Sans TC Bold)
 Write-Host "[4/5] 修復 File Explorer WinUI 3 麵包屑圖示與粗體樣式..." -ForegroundColor Yellow
 $explorerModId = "windows-11-file-explorer-styler"
 $explorerRegKey = "HKLM:\SOFTWARE\Windhawk\Engine\Mods\$explorerModId"
@@ -284,4 +289,5 @@ Write-Host "  1. 繁體中文：全系統 GDI 與 DirectWrite 呈現 Noto Sans T
 Write-Host "  2. 簡體中文：所有簡體字 (如「費」「門」「國」) 100% 回退至 Noto Sans SC Bold 原生粗體。" -ForegroundColor Green
 Write-Host "  3. 檔案總管：麵包屑導覽箭頭 (>) 與圖示完整保留，絕無豆腐塊。" -ForegroundColor Green
 Write-Host "=================================================================" -ForegroundColor Cyan
+try { Stop-Transcript | Out-Null } catch {}
 Read-Host "按 Enter 鍵結束..."

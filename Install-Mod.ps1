@@ -31,6 +31,8 @@ $ErrorActionPreference = "Continue"
 
 # 1. 權限檢測與自動提權
 Set-Location -LiteralPath $PSScriptRoot
+$logFile = Join-Path $PSScriptRoot "install.log"
+try { Start-Transcript -Path $logFile -Force -ErrorAction SilentlyContinue | Out-Null } catch {}
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
     Write-Host "=================================================================" -ForegroundColor Cyan
@@ -42,7 +44,8 @@ if (-not $isAdmin) {
     } catch {
         Write-Host "  [!] 未能取得系統管理員權限: $($_.Exception.Message)" -ForegroundColor Red
         Write-Host "  請在 Install-Mod.bat 上按滑鼠右鍵，選擇「以系統管理員身分執行」。" -ForegroundColor Yellow
-        Read-Host "按 Enter 鍵結束..."
+        try { Stop-Transcript | Out-Null } catch {}
+Read-Host "按 Enter 鍵結束..."
         exit 1
     }
     exit 0
@@ -87,7 +90,8 @@ if (-not $isInstalled) {
         Write-Host "  [!] 系統依然未檢測到 Windhawk 安裝，腳本將安全退出。" -ForegroundColor Red
         Write-Host "      請在完成 Windhawk 安裝後，再次執行本腳本即可自動完成配置！" -ForegroundColor Yellow
         Write-Host "=================================================================" -ForegroundColor Cyan
-        Read-Host "按 Enter 鍵結束..."
+        try { Stop-Transcript | Out-Null } catch {}
+Read-Host "按 Enter 鍵結束..."
         exit
     }
 }
@@ -285,4 +289,5 @@ Write-Host "  1. 繁體中文：全系統 GDI 與 DirectWrite 呈現 Noto Sans T
 Write-Host "  2. 簡體中文：所有簡體字 (如「費」「門」「國」) 100% 回退至 Noto Sans SC Bold 原生粗體。" -ForegroundColor Green
 Write-Host "  3. 檔案總管：麵包屑導覽箭頭 (>) 與圖示完整保留，絕無豆腐塊。" -ForegroundColor Green
 Write-Host "=================================================================" -ForegroundColor Cyan
+try { Stop-Transcript | Out-Null } catch {}
 Read-Host "按 Enter 鍵結束..."
