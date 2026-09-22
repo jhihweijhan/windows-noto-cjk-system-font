@@ -1,17 +1,16 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-
-:: Check Administrator Privileges
-net session >nul 2>&1
-if %errorlevel% neq 0 (
-    echo =================================================================
-    echo   Windhawk Noto Sans CJK Font Mod Uninstaller
-    echo =================================================================
-    echo   Requesting Administrator Privileges (UAC)...
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Start-Process cmd.exe -ArgumentList '/c ""%~dpnx0""' -Verb RunAs"
-    exit /b
-)
+title Windhawk Noto Sans CJK Uninstaller
 
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Uninstall-Mod.ps1"
-pause
+if %errorlevel% neq 0 (
+    echo.
+    echo =================================================================
+    echo   [!] Uninstaller encountered an issue [Exit Code: %errorlevel%]
+    echo   Please right-click "Uninstall-Mod.bat" and select:
+    echo   "Run as administrator"
+    echo =================================================================
+    echo.
+    pause
+)

@@ -1,17 +1,16 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-
-:: Check Administrator Privileges
-net session >nul 2>&1
-if %errorlevel% neq 0 (
-    echo =================================================================
-    echo   Windhawk Noto Sans CJK Font Mod Installer
-    echo =================================================================
-    echo   Requesting Administrator Privileges (UAC)...
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Start-Process cmd.exe -ArgumentList '/c ""%~dpnx0""' -Verb RunAs"
-    exit /b
-)
+title Windhawk Noto Sans CJK Installer
 
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Install-Mod.ps1"
-pause
+if %errorlevel% neq 0 (
+    echo.
+    echo =================================================================
+    echo   [!] Installer encountered an issue [Exit Code: %errorlevel%]
+    echo   Please right-click "Install-Mod.bat" and select:
+    echo   "Run as administrator"
+    echo =================================================================
+    echo.
+    pause
+)

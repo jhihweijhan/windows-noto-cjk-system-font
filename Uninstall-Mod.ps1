@@ -11,14 +11,23 @@ Windhawk 思源黑體模組一鍵解除安裝與預設字型還原工具
 [CmdletBinding()]
 param()
 
+# 1. 權限檢測與自動提權
+Set-Location -LiteralPath $PSScriptRoot
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
     Write-Host "=================================================================" -ForegroundColor Cyan
     Write-Host "  Windhawk 思源黑體模組解除安裝與還原工具" -ForegroundColor Cyan
     Write-Host "=================================================================" -ForegroundColor Cyan
     Write-Host "  正在請求系統管理員權限 (UAC)... 請在彈出視窗點選「是」" -ForegroundColor Yellow
-    Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -NoProfile -File `"$PSCommandPath`""
-    exit
+    try {
+        Start-Process powershell.exe -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -NoProfile -File `"$PSCommandPath`""
+    } catch {
+        Write-Host "  [!] 未能取得系統管理員權限: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "  請在 Uninstall-Mod.bat 上按滑鼠右鍵，選擇「以系統管理員身分執行」。" -ForegroundColor Yellow
+        Read-Host "按 Enter 鍵結束..."
+        exit 1
+    }
+    exit 0
 }
 
 Write-Host "=================================================================" -ForegroundColor Cyan
