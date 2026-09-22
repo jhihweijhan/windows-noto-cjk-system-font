@@ -125,5 +125,5 @@ Write-Host "=================================================================" -
 Write-Host "  雙重實機視覺檢驗完成！" -ForegroundColor Green
 Write-Host "  1. 繁體中文：100% 呈現 Noto Sans TC Bold 700 粗體" -ForegroundColor Green
 Write-Host "  2. 簡體中文：包含「費」「門」「國」等簡體字，100% 呈現 Noto Sans SC Bold 原生粗體" -ForegroundColor Green
-Write-Host "  3. 檔案總管：網址列為 Noto Sans TC Bold，麵包屑導覽箭頭 (❯) 與圖示完整保留" -ForegroundColor Green
+Write-Host "  3. 檔案總管：網址列為 Noto Sans TC Bold，麵包屑導覽箭頭 (>) 與圖示完整保留" -ForegroundColor Green
 Write-Host "=================================================================" -ForegroundColor Cyan

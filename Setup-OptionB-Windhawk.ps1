@@ -275,6 +275,6 @@ Write-Host "=================================================================" -
 Write-Host "  全套 Windhawk 字型模組已成功配置並啟動！" -ForegroundColor Green
 Write-Host "  1. 繁體中文：全系統 GDI 與 DirectWrite 呈現 Noto Sans TC Bold 700。" -ForegroundColor Green
 Write-Host "  2. 簡體中文：所有簡體字 (如「費」「門」「國」) 100% 回退至 Noto Sans SC Bold 原生粗體。" -ForegroundColor Green
-Write-Host "  3. 檔案總管：麵包屑導覽箭頭 (❯) 與圖示完整保留，絕無豆腐塊。" -ForegroundColor Green
+Write-Host "  3. 檔案總管：麵包屑導覽箭頭 (>) 與圖示完整保留，絕無豆腐塊。" -ForegroundColor Green
 Write-Host "=================================================================" -ForegroundColor Cyan
 Read-Host "按 Enter 鍵結束..."

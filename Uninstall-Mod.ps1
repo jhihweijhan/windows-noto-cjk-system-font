@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 Windhawk 思源黑體模組一鍵解除安裝與預設字型還原工具
 .DESCRIPTION
