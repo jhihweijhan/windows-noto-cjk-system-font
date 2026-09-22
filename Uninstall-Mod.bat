@@ -3,18 +3,19 @@ setlocal
 cd /d "%~dp0"
 title Windhawk Noto Sans CJK Uninstaller
 
-echo =================================================================
-echo   Windhawk 思源黑體模組解除安裝與還原工具
-echo =================================================================
-echo.
+:: Check for Administrative Privileges
+net session >nul 2>&1
+if %errorlevel% neq 0 (
+    echo =================================================================
+    echo   Windhawk Noto Sans CJK Uninstaller
+    echo =================================================================
+    echo   Requesting Administrator Privileges...
+    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin_%~n0.vbs"
+    echo UAC.ShellExecute "cmd.exe", "/c cd /d %~dp0 ^&^& %~f0", "", "runas", 1 >> "%temp%\getadmin_%~n0.vbs"
+    "%temp%\getadmin_%~n0.vbs"
+    del "%temp%\getadmin_%~n0.vbs" 2>nul
+    exit /b
+)
 
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Uninstall-Mod.ps1"
-if %errorlevel% neq 0 (
-    echo.
-    echo =================================================================
-    echo   [!] 若未取得管理員權限，請在 Uninstall-Mod.bat 按滑鼠右鍵選擇：
-    echo       「以系統管理員身分執行」 (Run as administrator)
-    echo =================================================================
-    echo.
-)
 pause
